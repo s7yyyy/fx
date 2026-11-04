@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>FX 简单! · 网页版</title>
+
+  <style>
+
+    :root {
+
+      --bg: #0b0f15; --card-bg: #121821; --panel-bg: #1a222d; --text-main: #eef4ff; --text-sub: #8b9bb0;
+
+      --text-muted: #4d5c6e; --border: rgba(255, 255, 255, 0.08); --btn-bg: #25303f;
+
+      --green: #66bb6a; --red: #ef5350; --gold: #ffd700;
+
+    }
+
+    [data-theme="light"] {
+
+      --bg: #f0f2f5; --card-bg: #ffffff; --panel-bg: #f8f9fa; --text-main: #1a1f2b; --text-sub: #5c6b82;
+
+      --text-muted: #8b9bb0; --border: rgba(0, 0, 0, 0.08); --btn-bg: #e4e9f2;
+
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+    body { min-height: 100vh; background: var(--bg); color: var(--text-main); display: flex; justify-content: center; align-items: flex-start; padding: 0.5rem; transition: background 0.3s; }
+
+    .card { max-width: 500px; width: 100%; background: var(--card-bg); border-radius: 1rem; padding: 1rem; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); border: 1px solid var(--border); position: relative; }
+
+
+
+    .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+
+    .logo { font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
+
+    
+
+    .custom-logo-icon { width: 36px; height: 36px; background: #fff; border-radius: 4px; display: flex; justify-content: center; align-items: center; overflow: hidden;}
+
+    
+
+    .nav-actions { display: flex; gap: 0.6rem; }
+
+    .nav-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--btn-bg); display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid var(--border); font-size: 1rem; }
+
+
+
+    .account-panel { display: flex; justify-content: space-between; background: var(--panel-bg); padding: 0.8rem; border-radius: 0.8rem; margin-bottom: 0.8rem; border: 1px solid var(--border); }
+
+    .acc-item { display: flex; flex-direction: column; gap: 0.1rem; }
+
+    .acc-label { font-size: 0.7rem; color: var(--text-sub); }
+
+    .acc-val { font-size: 1rem; font-weight: 700; }
+
+    .val-green { color: var(--green); } .val-red { color: var(--red); }
+
+
+
+    /* 行情面板样式 */
+
+    .market-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.5rem; padding: 0 0.2rem; }
+
+    .pair-title { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; }
+
+    .pair-title span { font-size: 0.65rem; font-weight: normal; background: rgba(239, 83, 80, 0.2); color: #ff8a80; padding: 0.1rem 0.4rem; border-radius: 0.2rem; }
+
+    .price-box { text-align: right; }
+
+    .current-price { font-size: 1.6rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; transition: color 0.2s; }
+
+    .current-change { font-size: 0.85rem; font-weight: 600; margin-top: 0.2rem; }
+
+
+
+    .chart-wrap { position: relative; width: 100%; height: 200px; background: rgba(0,0,0,0.1); border-radius: 0.8rem; border: 1px solid var(--border); overflow: hidden; margin-bottom: 0.8rem; }
+
+    #chartCanvas { display: block; width: 100%; height: 100%; }
+
+
+
+    .trade-panel { background: var(--panel-bg); padding: 0.8rem; border-radius: 0.8rem; margin-bottom: 0.8rem; border: 1px solid var(--border); }
+
+    .trade-row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+
+    .margin-input-group { display: flex; align-items: center; background: rgba(0,0,0,0.2); border-radius: 0.5rem; padding: 0.3rem 0.6rem; border: 1px solid var(--border); }
+
+    .margin-input-group span { color: var(--text-sub); font-size: 0.8rem; margin-right: 0.3rem; }
+
+    .margin-input { background: none; border: none; color: var(--text-main); font-size: 1.2rem; font-weight: 700; width: 90px; outline: none; }
+
+    .btn-max { background: var(--btn-bg); color: var(--green); border: 1px solid var(--border); border-radius: 0.3rem; padding: 0.2rem 0.5rem; font-size: 0.7rem; cursor: pointer; font-weight: 700; margin-left: 0.5rem; }
+
+    
+
+    .leverage-group { display: flex; align-items: center; gap: 0.5rem; }
+
+    .lev-label { font-size: 0.8rem; color: var(--text-sub); }
+
+    .lev-value { font-size: 1.2rem; font-weight: 800; color: var(--green); width: 40px; text-align: right; }
+
+    
+
+    .slider-container { margin-bottom: 0.8rem; }
+
+    input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; }
+
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--green); cursor: pointer; margin-top: -6px; }
+
+    input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: var(--border); border-radius: 2px; }
+
+    .slider-marks { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+
+
+    .calc-info { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-sub); margin-bottom: 0.8rem; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 0.5rem; }
+
+    .calc-info div { display: flex; flex-direction: column; gap: 0.2rem; }
+
+    .calc-info span:last-child { color: var(--text-main); font-weight: 600; }
+
+
+
+    .action-btns { display: flex; gap: 0.5rem; }
+
+    .btn { flex: 1; padding: 0.8rem 0; border: none; border-radius: 0.5rem; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+
+    .btn-long { background: var(--green); color: #fff; } .btn-short { background: var(--red); color: #fff; }
+
+    .btn:active { transform: scale(0.97); opacity: 0.9; }
+
+
+
+    .positions-section { margin-bottom: 0.8rem; }
+
+    .pos-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-sub); margin-bottom: 0.5rem; }
+
+    .pos-item { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 0.6rem; padding: 0.6rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+
+    .pos-title { font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+
+    .tag-long { background: rgba(102,187,106,0.2); color: var(--green); padding: 0.1rem 0.4rem; border-radius: 0.2rem; font-size: 0.65rem; }
+
+    .tag-short { background: rgba(239,83,80,0.2); color: var(--red); padding: 0.1rem 0.4rem; border-radius: 0.2rem; font-size: 0.65rem; }
+
+    .pos-detail { font-size: 0.7rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    .pos-right { display: flex; align-items: center; gap: 0.8rem; }
+
+    .pos-pnl { text-align: right; font-size: 0.9rem; font-weight: 700; }
+
+    .pos-pnl-label { font-size: 0.65rem; color: var(--text-sub); font-weight: normal; }
+
+    .btn-close-pos { background: var(--btn-bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 0.4rem; padding: 0.4rem 0.8rem; font-size: 0.8rem; cursor: pointer; }
+
+
+
+    .status-area { text-align: center; font-size: 0.75rem; color: var(--text-sub); margin-bottom: 0.8rem; min-height: 1rem; }
+
+    .status-area.error { color: var(--red); } .status-area.success { color: var(--green); }
+
+
+
+    .log-section { background: var(--panel-bg); border-radius: 0.8rem; margin-bottom: 0.8rem; border: 1px solid var(--border); overflow: hidden; }
+
+    .log-header { display: flex; justify-content: space-between; padding: 0.8rem; cursor: pointer; user-select: none; }
+
+    .log-header-title { font-size: 0.9rem; font-weight: 700; }
+
+    .log-toggle-btn { font-size: 0.75rem; color: var(--text-sub); display: flex; align-items: center; gap: 0.2rem; }
+
+    .log-list { display: none; border-top: 1px solid var(--border); }
+
+    .log-list.active { display: block; }
+
+    .log-item { display: flex; justify-content: space-between; padding: 0.6rem 0.8rem; font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text-sub); }
+
+    .log-item:last-child { border-bottom: none; }
+
+
+
+    .bottom-actions { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 0.8rem; gap: 0.5rem; }
+
+    .btn-small { flex: 1; padding: 0.6rem 0; background: var(--btn-bg); border: 1px solid var(--border); color: var(--text-main); border-radius: 0.4rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+
+    .btn-small:active { transform: scale(0.95); }
+
+
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 1rem; backdrop-filter: blur(4px); }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-content { background: var(--card-bg); border-radius: 1.2rem; width: 100%; max-width: 400px; padding: 1.5rem; position: relative; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
+
+    .modal-close { position: absolute; top: 1rem; right: 1rem; font-size: 1.2rem; cursor: pointer; color: var(--text-sub); background: none; border: none; }
+
+    
+
+    .modal-icon { width: 60px; height: 60px; border-radius: 1rem; display: flex; justify-content: center; align-items: center; margin: 0 auto 1rem; font-size: 2rem; }
+
+    .icon-green { background: rgba(102,187,106,0.15); color: var(--green); }
+
+    .icon-red { background: rgba(239,83,80,0.15); color: var(--red); }
+
+    
+
+    .modal-title-big { font-size: 1.3rem; font-weight: 800; text-align: center; margin-bottom: 0.5rem; }
+
+    .modal-desc { font-size: 0.85rem; color: var(--text-sub); text-align: center; margin-bottom: 1.2rem; line-height: 1.4; }
+
+    
+
+    .modal-info-box { background: var(--panel-bg); padding: 1rem; border-radius: 0.8rem; display: flex; justify-content: center; gap: 0.5rem; align-items: baseline; margin-bottom: 1.5rem; border: 1px solid var(--border); }
+
+    .modal-info-label { font-size: 0.9rem; color: var(--text-sub); }
+
+    .modal-info-val { font-size: 1.4rem; font-weight: 800; }
+
+    
+
+    .btn-confirm { width: 100%; padding: 0.9rem; background: var(--green); color: #fff; border: none; border-radius: 0.8rem; font-size: 1rem; font-weight: 700; cursor: pointer; }
+
+
+
+    .loan-rate-box { background: var(--panel-bg); border-radius: 0.8rem; padding: 0.8rem 1rem; text-align: center; margin-bottom: 1.2rem; font-size: 0.85rem; color: var(--text-sub); border: 1px solid var(--border); }
+
+    .loan-rate-box span { color: var(--green); font-weight: 700; }
+
+    .loan-slider-wrap { margin-bottom: 1.5rem; }
+
+    .loan-amount-input { display: flex; align-items: center; border: 2px solid var(--green); border-radius: 0.6rem; padding: 0.5rem; margin-bottom: 1rem; background: rgba(102,187,106,0.05); }
+
+    .loan-amount-input span { font-size: 1.2rem; color: var(--green); margin: 0 0.5rem; font-weight: 700; }
+
+    .loan-amount-input input { flex: 1; background: none; border: none; color: var(--text-main); font-size: 1.4rem; font-weight: 800; outline: none; }
+
+    .loan-btns { display: flex; gap: 0.8rem; }
+
+    .loan-btns .btn-cancel { flex: 1; padding: 0.9rem; background: var(--btn-bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 0.8rem; font-size: 1rem; font-weight: 700; cursor: pointer; }
+
+    .loan-btns .btn-confirm { flex: 2; }
+
+
+
+    /* 日夜模式开关 (确保逻辑绝对正确) */
+
+    .theme-toggle { width: 44px; height: 24px; background: var(--btn-bg); border-radius: 20px; position: relative; cursor: pointer; transition: background 0.3s; }
+
+    .theme-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: var(--text-main); border-radius: 50%; transition: transform 0.3s, background 0.3s; }
+
+    
+
+    /* 当 body 是 light 时，开关变色、滑块右移 */
+
+    [data-theme="light"] .theme-toggle { background: var(--green); }
+
+    [data-theme="light"] .theme-toggle::after { transform: translateX(20px); background: #fff; }
+
+/* 分段式外观切换按钮 */
+.theme-segmented-control { display: flex; background: var(--panel-bg); border-radius: 0.6rem; padding: 0.2rem; border: 1px solid var(--border); }
+.theme-segment { padding: 0.4rem 0.8rem; border-radius: 0.4rem; font-size: 0.85rem; cursor: pointer; color: var(--text-sub); font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 0.2rem; }
+
+/* 默认状态下的选中高亮 */
+[data-theme="light"] #themeLight { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+[data-theme="dark"] #themeDark { background: var(--btn-bg); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+
+    @media (min-width: 768px) {
+
+      .card { max-width: 850px; padding: 1.5rem; }
+
+      .chart-wrap { height: 380px; } 
+
+      .account-panel { padding: 1.2rem; }
+
+      .acc-val { font-size: 1.3rem; }
+
+      .action-btns .btn { padding: 1rem 0; font-size: 1.1rem; }
+
+      .btn:hover, .btn-small:hover, .btn-close-pos:hover, .btn-confirm:hover, .btn-cancel:hover { opacity: 0.8; transform: translateY(-1px); }
+
+      .nav-icon:hover { background: var(--border); }
+
+    }
+
+  </style>
+
+</head>
+
+<body data-theme="dark">
+
+
+
+  <div class="card">
+
+    <div class="nav-bar">
+
+      <div class="logo">
+
+        <div class="custom-logo-icon">
+
+          <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+
+            <rect width="30" height="30" fill="#ffffff" />
+
+            <path d="M 0 10 L 30 10 M 0 20 L 30 20 M 10 0 L 10 30 M 20 0 L 20 30" stroke="#d0d0d0" stroke-width="1" />
+
+            <path d="M 5 25 L 10 20 L 15 24 L 20 15 L 25 8" fill="none" stroke="#f04040" stroke-width="2" stroke-linejoin="round" />
+
+          </svg>
+
+        </div>
+
+        FX 简单!
+
+      </div>
+
+      <div class="nav-actions">
+
+        <div class="nav-icon" id="btnAchieve">🏆</div>
+
+        <div class="nav-icon" id="btnShare">📤</div>
+
+        <div class="nav-icon" id="btnSettings">⚙️</div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="account-panel">
+
+      <div class="acc-item" style="cursor:pointer;" onclick="openRepayModal()">
+
+        <span class="acc-label">账户净值</span>
+
+        <span class="acc-val" id="uiNetWorth">$10,000.00</span>
+
+      </div>
+
+      <div class="acc-item" style="align-items: center; cursor:pointer;" onclick="openRepayModal()">
+
+        <span class="acc-label">债务 (点击还债)</span>
+
+        <span class="acc-val val-red" id="uiDebt">$0.00</span>
+
+      </div>
+
+      <div class="acc-item" style="align-items: flex-end;">
+
+        <span class="acc-label">可用资金</span>
+
+        <span class="acc-val val-green" id="uiBalance">$10,000.00</span>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="market-header">
+
+      <div class="pair-title">
+
+        EUR / USD <span>模拟行情</span>
+
+      </div>
+
+      <div class="price-box">
+
+        <div class="current-price" id="uiPrice">1.10000</div>
+
+        <div class="current-change" id="uiChange">+0.00%</div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="chart-wrap">
+
+      <canvas id="chartCanvas"></canvas>
+
+    </div>
+
+
+
+    <div class="trade-panel">
+
+      <div class="trade-row-top">
+
+        <div class="margin-input-group">
+
+          <span>$</span>
+
+          <input type="number" id="inputMargin" class="margin-input" value="500" min="10" step="100">
+
+          <button class="btn-max" id="btnMax">MAX</button>
+
+        </div>
+
+        <div class="leverage-group">
+
+          <span class="lev-label">杠杆</span>
+
+          <span class="lev-value" id="uiLeverage">100x</span>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="slider-container">
+
+        <input type="range" id="leverageSlider" min="1" max="100" value="100">
+
+        <div class="slider-marks">
+
+          <span>1x</span><span>25x</span><span>50x</span><span>75x</span><span>100x</span>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="calc-info">
+
+        <div><span>名义仓位</span><span id="uiNotional">$50,000.00</span></div>
+
+        <div><span>开仓手续费</span><span id="uiFee">$27.50</span></div>
+
+        <div><span>可承受波动</span><span id="uiTolerance">0.80%</span></div>
+
+      </div>
+
+
+
+      <div class="action-btns">
+
+        <button class="btn btn-long" id="btnLong">↗ 做多</button>
+
+        <button class="btn btn-short" id="btnShort">↘ 做空</button>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="positions-section">
+
+      <div class="pos-header">
+
+        <span>持仓 <span id="posCount" style="background:var(--btn-bg); padding:0 0.4rem; border-radius:1rem;">0</span></span>
+
+        <span>合计 <span id="totalMargin">$0.00</span> 保证金</span>
+
+      </div>
+
+      <div id="positionsList"></div>
+
+    </div>
+
+
+
+    <div class="status-area" id="statusMsg">⚡ 实时行情跳动中...</div>
+
+
+
+    <div class="rank-panel" style="background: var(--panel-bg); border-radius: 0.8rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border);">
+
+      <div class="rank-title" style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 700; color: var(--text-sub); margin-bottom: 0.8rem;">
+
+        🏆 交易员排行榜 <span style="font-weight:400;">(本机)</span>
+
+      </div>
+
+      <div id="rankList"></div>
+
+    </div>
+
+
+
+    <div class="log-section">
+
+      <div class="log-header" id="logHeader">
+
+        <div class="log-header-title">最近结算</div>
+
+        <div class="log-toggle-btn" id="logToggleText">展开记录 <span>∨</span></div>
+
+      </div>
+
+      <div class="log-list" id="logList"></div>
+
+    </div>
+
+
+
+    <div class="bottom-actions">
+
+      <button class="btn-small" id="btnLoan">💰 贷款</button>
+
+      <button class="btn-small" id="btnWork">🧱 打工</button>
+
+      <button class="btn-small" id="btnReset">💸 重启人生</button>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- 弹窗层 -->
+
+  <div class="modal-overlay" id="modalRepay">
+
+    <div class="modal-content">
+
+      <button class="modal-close" onclick="closeModal('modalRepay')">×</button>
+
+      <div class="modal-icon icon-green">💸</div>
+
+      <div class="modal-title-big">还清债务</div>
+
+      <div class="modal-desc">一次性结清所有债务，恢复你的账户净值。</div>
+
+      <div class="loan-rate-box" style="background:var(--red); color:white; border:none;">
+
+        当前欠款总额：<span id="repayAmount" style="color:white; font-size:1.2rem;">$0.00</span>
+
+      </div>
+
+      <div class="loan-btns">
+
+        <button class="btn-cancel" onclick="closeModal('modalRepay')">取消</button>
+
+        <button class="btn-confirm" id="btnConfirmRepay">确认还清</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="modal-overlay" id="modalClose">
+
+    <div class="modal-content">
+
+      <button class="modal-close" onclick="closeModal('modalClose')">×</button>
+
+      <div id="closeIcon" class="modal-icon icon-green">🤍</div>
+
+      <div class="modal-title-big" id="closeTitle">平仓成功，漂亮！</div>
+
+      <div class="modal-desc" id="closeDesc">EUR/USD 仓位已结算，盈亏计入可用余额。</div>
+
+      <div class="modal-info-box">
+
+        <span class="modal-info-label">本次交易盈亏</span>
+
+        <span class="modal-info-val" id="closePnlVal">+$1.21</span>
+
+      </div>
+
+      <button class="btn-confirm" onclick="closeModal('modalClose')">知道了</button>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="modal-overlay" id="modalLoan">
+
+    <div class="modal-content">
+
+      <button class="modal-close" onclick="closeModal('modalLoan')">×</button>
+
+      <div class="modal-icon icon-green">$</div>
+
+      <div class="modal-title-big">申请周转贷款</div>
+
+      <div class="modal-desc">最多可借 $200,000。借得越多，日利率越高。</div>
+
+      <div class="loan-rate-box">日利率 <span id="loanRate">0.01%</span> · 每交易日约 <span id="loanInterest">$0.10</span> 利息</div>
+
+      <div class="loan-slider-wrap">
+
+        <div style="font-size:0.85rem; font-weight:700; margin-bottom:0.5rem; color:var(--text-sub);">借款金额 (最多 $200,000)</div>
+
+        <div class="loan-amount-input">
+
+          <span>$</span>
+
+          <input type="number" id="loanAmountInput" value="1000" min="100" max="200000" step="100">
+
+        </div>
+
+        <input type="range" id="loanSlider" min="100" max="200000" value="1000" step="100">
+
+      </div>
+
+      <div class="loan-btns">
+
+        <button class="btn-cancel" onclick="closeModal('modalLoan')">取消</button>
+
+        <button class="btn-confirm" id="btnConfirmLoan">确认借入</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="modal-overlay" id="modalAchieve">
+
+    <div class="modal-content" style="max-width:450px;">
+
+      <button class="modal-close" onclick="closeModal('modalAchieve')">×</button>
+
+      <div class="modal-title-big">🏆 成就系统</div>
+
+      <div class="achievement-grid" id="achieveGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-top:1rem;"></div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="modal-overlay" id="modalSettings">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('modalSettings')">×</button>
+    <div class="modal-title-big">⚙️ 设置</div>
+    
+    <!-- 替换成了图片里的外观切换 -->
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 0; border-bottom:1px solid var(--border); font-size:0.9rem; margin-bottom: 1rem;">
+      <span>外观</span>
+      <div class="theme-segmented-control">
+        <div class="theme-segment" id="themeLight">☀️ 白天</div>
+        <div class="theme-segment" id="themeDark">☾ 夜间</div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 0; font-size:0.9rem;">
+      <span>玩家代号</span>
+      <input type="text" id="inputName" style="background:var(--btn-bg); border:1px solid var(--border); color:var(--text-main); padding:0.4rem 0.6rem; border-radius:0.4rem; width:120px; text-align:right; outline:none;">
+    </div>
+
+    <!-- 弹窗底部的按钮 -->
+    <div style="display:flex; gap:0.8rem; margin-top:1.5rem;">
+      <button class="btn-cancel" onclick="closeModal('modalSettings')" style="flex:1; padding:0.9rem; background:transparent; color:var(--text-main); border:1px solid var(--border); border-radius:0.8rem; font-size:1rem; font-weight:700; cursor:pointer;">恢复默认</button>
+      <button class="btn-confirm" onclick="closeModal('modalSettings')" style="flex:1; padding:0.9rem; background:var(--green); color:#fff; border:none; border-radius:0.8rem; font-size:1rem; font-weight:700; cursor:pointer;">完成</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  <div class="modal-overlay" id="modalShare">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('modalShare')">×</button>
+    <div class="modal-title-big">📤 分享战绩</div>
+    
+    <!-- 分享卡片 -->
+    <div style="background:var(--panel-bg); border-radius:1rem; padding:1.2rem; margin-top:1rem; border: 1px solid var(--border);">
+      <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:1rem;">
+        <div class="custom-logo-icon" style="width:40px; height:40px;">
+          <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+            <rect width="30" height="30" fill="#ffffff" />
+            <path d="M 0 10 L 30 10 M 0 20 L 30 20 M 10 0 L 10 30 M 20 0 L 20 30" stroke="#d0d0d0" stroke-width="1" />
+            <path d="M 5 25 L 10 20 L 15 24 L 20 15 L 25 8" fill="none" stroke="#f04040" stroke-width="2" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:1.1rem; font-weight:700;">FX 简单!</div>
+          <div style="font-size:0.7rem; color:var(--text-sub);" id="shareSub">— 交易室</div>
+        </div>
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-sub); margin-bottom:0.2rem;">账户总权益</div>
+      <div style="font-size:2rem; font-weight:800; margin-bottom:0.2rem;" id="shareNet">$10,000.00</div>
+      <div style="font-size:0.85rem; font-weight:600; color:var(--green); margin-bottom:1rem;" id="sharePnl">累计收益 +$0.00</div>
+      
+      <div style="display:flex; justify-content:space-between; background:var(--btn-bg); padding:0.8rem; border-radius:0.6rem; text-align:center;">
+        <div><div style="font-size:1rem; font-weight:700;" id="shareWinRate">0%</div><div style="font-size:0.65rem; color:var(--text-sub);">胜率</div></div>
+        <div><div style="font-size:1rem; font-weight:700;" id="shareAch">0 / 12</div><div style="font-size:0.65rem; color:var(--text-sub);">成就</div></div>
+        <div><div style="font-size:1rem; font-weight:700;" id="shareTrades">0</div><div style="font-size:0.65rem; color:var(--text-sub);">交易笔数</div></div>
+      </div>
+    </div>
+    
+    <button class="btn-confirm" style="margin-top:1rem;" onclick="alert('请直接截图保存到相册分享给群友！')">📸 截图保存分享</button>
+  </div>
+</div>
+
+<!-- 群友专属昵称输入弹窗 -->
+<div class="modal-overlay active" id="modalWelcome">
+  <div class="modal-content" style="text-align: center;">
+    <div class="modal-icon icon-green" style="font-size: 2.5rem;">👋</div>
+    <div class="modal-title-big">欢迎来到 FX 简单!</div>
+    <div class="modal-desc">请设置你的群昵称，开启专属交易之旅</div>
+    
+    <div style="background: var(--panel-bg); border: 2px solid var(--green); border-radius: 0.8rem; padding: 0.8rem; display: flex; align-items: center; margin-bottom: 1.5rem;">
+      <span style="font-size: 1.2rem; color: var(--green); margin-right: 0.5rem;">👤</span>
+      <input type="text" id="welcomeNameInput" placeholder="输入你的群昵称..." style="flex: 1; background: none; border: none; color: var(--text-main); font-size: 1.1rem; font-weight: 700; outline: none;">
+    </div>
+    
+    <button class="btn-confirm" id="btnWelcomeConfirm">🚀 进入交易室</button>
+  </div>
+</div>
+
+  <script>
+
+    const TICK_MS = 1000;
+
+    const MAX_POINTS = 40;
+
+    const INITIAL_RATE = 1.10000;
+
+
+
+    let currentRate = INITIAL_RATE;
+
+    let prevRate = INITIAL_RATE;
+
+    let kLines = [];
+
+    let balance = 10000;
+
+    let debt = 0;
+
+    let positions = [];
+
+    let tradeLogs = []; 
+
+    let tradesCount = 0;
+
+    let winTrades = 0;
+
+    let lastWorkDate = '';
+
+    let workCount = 0;
+
+    let lastInterestTime = Date.now();
+
+
+
+    let playerName = localStorage.getItem('fx_player_name') || '匿名交易员';
+
+
+
+    // 成就系统配置
+
+    let achievements = JSON.parse(localStorage.getItem('fx_achievements')) || [
+
+      { id: 'buy_high', name: '现在买入，一定爆赚', desc: '最高点附近开多', icon: '🔴', unlocked: false },
+
+      { id: 'first_liquidation', name: '本喵明明没做坏事', desc: '第一次经历爆仓', icon: '🐱', unlocked: false },
+
+      { id: 'first_profit', name: '老实赚钱，很枯燥吧', desc: '完成第一次盈利平仓', icon: '💵', unlocked: false },
+
+      { id: 'loan10k', name: '十万伏特', desc: '单次贷款达到 $10,000', icon: '⚡', unlocked: false },
+
+      { id: 'negative', name: '负债累累', desc: '账户净值跌破 0', icon: '📉', unlocked: false },
+
+      { id: 'rich100k', name: '天生交易员', desc: '账户净值突破 $100,000', icon: '👑', unlocked: false },
+
+      { id: 'reset', name: '千金散尽还复来', desc: '首次点击重启人生', icon: '🔄', unlocked: false },
+
+      { id: 'work3', name: '打工是不可能打工的', desc: '累计打工3次', icon: '🧱', unlocked: false },
+
+    ];
+
+
+
+    const $ = id => document.getElementById(id);
+
+    const canvas = $('chartCanvas');
+
+    const ctx = canvas.getContext('2d');
+
+
+
+    // ======= 绝对安全的主题切换逻辑 =======
+
+    function applyTheme(theme) {
+
+      document.body.setAttribute('data-theme', theme);
+
+      localStorage.setItem('fx_theme', theme);
+
+      drawChart(); 
+
+    }
+
+
+
+    // 默认是 'dark' (夜间模式)
+
+    let currentTheme = localStorage.getItem('fx_theme') || 'dark';
+
+    applyTheme(currentTheme);
+
+
+
+$('themeLight').onclick = () => applyTheme('light');
+$('themeDark').onclick = () => applyTheme('dark');
+
+
+    function updateMarginCalc() {
+
+      const margin = parseFloat($('inputMargin').value) || 0;
+
+      const lev = parseInt($('leverageSlider').value);
+
+      const notional = margin * lev;
+
+      const fee = notional * 0.00055;
+
+      const tolerance = lev > 0 ? (margin - fee) / notional * 100 : 0;
+
+      
+
+      $('uiLeverage').textContent = lev + 'x';
+
+      $('uiNotional').textContent = '$' + notional.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      $('uiFee').textContent = '$' + fee.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      $('uiTolerance').textContent = tolerance.toFixed(2) + '%';
+
+      $('uiTolerance').style.color = 'var(--text-main)';
+
+    }
+
+
+
+    $('inputMargin').addEventListener('input', updateMarginCalc);
+
+    $('leverageSlider').addEventListener('input', updateMarginCalc);
+
+    $('btnMax').onclick = () => { $('inputMargin').value = Math.floor(balance); updateMarginCalc(); };
+
+
+
+    function calcFloatPnl(pos = null) {
+
+      let pnl = 0;
+
+      const calcOne = (p) => {
+
+        const diff = currentRate - p.entryRate;
+
+        let val = diff * p.amount; 
+
+        return p.side === 'long' ? val : -val;
+
+      };
+
+      if (pos) return calcOne(pos);
+
+      positions.forEach(p => pnl += calcOne(p));
+
+      return pnl;
+
+    }
+
+
+
+    function calcNetWorth() {
+
+      let totalMargin = 0;
+
+      positions.forEach(p => totalMargin += p.margin);
+
+      return balance + totalMargin + calcFloatPnl() - debt;
+
+    }
+
+
+
+    // 成就系统解锁逻辑
+
+    function unlockAchievement(id) {
+
+      const ach = achievements.find(a => a.id === id);
+
+      if (ach && !ach.unlocked) {
+
+        ach.unlocked = true;
+
+        localStorage.setItem('fx_achievements', JSON.stringify(achievements)); 
+
+        renderAchieveUI();
+
+        const oldMsg = $('statusMsg').textContent;
+
+        setStatus('🏆 解锁成就：' + ach.name + '！', 'success');
+
+        setTimeout(() => { if($('statusMsg').textContent.includes('🏆')) setStatus('⚡ 实时行情跳动中...', 'info'); }, 3000);
+
+      }
+
+    }
+
+
+
+    function checkAchievements() {
+
+      const net = calcNetWorth();
+
+      
+
+      if (net > 100000) unlockAchievement('rich100k');
+
+      if (net < 0) unlockAchievement('negative');
+
+      if (workCount >= 3) unlockAchievement('work3');
+
+      
+
+      if (positions.length > 0) {
+
+        const recentHighs = kLines.slice(-10).map(k => k.high);
+
+        const maxRecent = Math.max(...recentHighs);
+
+        positions.forEach(p => {
+
+          if (p.side === 'long' && p.entryRate >= maxRecent * 0.999) {
+
+            unlockAchievement('buy_high');
+
+          }
+
+        });
+
+      }
+
+    }
+
+
+
+   async function updateRankList() {
+  const listEl = $('rankList');
+  if (!listEl) return;
+  
+  try {
+    // 向你的服务器请求真实排行榜
+    const response = await fetch('/api/rank');
+    const players = await response.json();
+    
+    listEl.innerHTML = players.map((p, index) => {
+      let color = p.net >= 0 ? 'var(--green)' : 'var(--red)';
+      let sign = p.net >= 0 ? '+$' : '-$';
+      // 前三名用金、银、铜色
+      let rankColor = index === 0 ? 'var(--gold)' : (index === 1 ? '#c0c0c0' : (index === 2 ? '#cd7f32' : 'var(--text-sub)'));
+      
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0; border-bottom:1px solid var(--border);">
+          <div style="display:flex; gap:0.8rem; align-items:center;">
+            <span style="color:${rankColor}; font-weight:700; width:1.5rem;">${index + 1}</span>
+            <span style="color:var(--text-main); font-weight:700;">${p.name}</span>
+          </div>
+          <span style="color:${color}; font-weight:700;">
+            ${sign}${Math.abs(p.net).toFixed(2)}
+          </span>
+        </div>
+      `;
+    }).join('');
+  } catch (e) {
+    // 如果没连服务器，降级显示本地
+    listEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.75rem; padding:1rem 0;">服务器未连接</div>`;
+  }
+}
+
+// 把当前数据发给服务器
+function syncDataToServer() {
+  // 只有填了名字才同步
+  if (!playerName || playerName === '匿名交易员') return;
+  
+  const net = calcNetWorth();
+  fetch('/api/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: playerName,
+      balance: net, // 这里直接存净值
+      debt: debt
+    })
+  }).catch(err => console.log('同步失败', err));
+}
+
+
+    function updateUI() {
+
+      const diff = currentRate - prevRate;
+
+      const diffPct = (diff / prevRate) * 100;
+
+      
+
+      $('uiPrice').textContent = currentRate.toFixed(5);
+
+      const changeEl = $('uiChange');
+
+      if (diff > 0) {
+
+        $('uiPrice').style.color = 'var(--green)';
+
+        changeEl.textContent = '+' + diffPct.toFixed(2) + '%';
+
+        changeEl.style.color = 'var(--green)';
+
+      } else if (diff < 0) {
+
+        $('uiPrice').style.color = 'var(--red)';
+
+        changeEl.textContent = diffPct.toFixed(2) + '%';
+
+        changeEl.style.color = 'var(--red)';
+
+      } else {
+
+        $('uiPrice').style.color = 'var(--text-main)';
+
+        changeEl.textContent = '0.00%';
+
+        changeEl.style.color = 'var(--text-sub)';
+
+      }
+
+
+
+      $('uiBalance').textContent = '$' + balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      $('uiDebt').textContent = '$' + debt.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      
+
+      const net = calcNetWorth();
+
+      const netEl = $('uiNetWorth');
+
+      netEl.textContent = '$' + net.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      netEl.className = 'acc-val ' + (net >= 0 ? 'val-green' : 'val-red');
+
+      
+
+      renderPositions();
+
+      renderLogs();
+
+      updateRankList();
+
+      checkAchievements(); 
+
+      // 每次 UI 刷新时，尝试同步给后端（每秒一次，没毛病）
+syncDataToServer();
+    }
+
+
+
+    function openPosition(side) {
+
+      const margin = parseFloat($('inputMargin').value);
+
+      const lev = parseInt($('leverageSlider').value);
+
+      if (isNaN(margin) || margin < 10) return setStatus('❌ 保证金至少 $10', 'error');
+
+      
+
+      const notional = margin * lev;
+
+      const fee = notional * 0.00055;
+
+      const totalCost = margin + fee;
+
+      if (balance < totalCost) return setStatus('❌ 可用资金不足 (含手续费)', 'error');
+
+
+
+      balance -= totalCost;
+
+      positions.push({ id: Date.now(), side, margin, amount: notional, entryRate: currentRate });
+
+      tradesCount++;
+
+      updateUI();
+
+      setStatus('✅ ' + (side === 'long' ? '做多' : '做空') + ' 开仓成功', 'success');
+
+      checkMarginCall();
+
+    }
+
+
+
+    function closePosition(id) {
+
+      const idx = positions.findIndex(p => p.id === id);
+
+      if (idx === -1) return;
+
+      const pos = positions[idx];
+
+      const pnl = calcFloatPnl(pos);
+
+      
+
+      balance += pos.margin + pnl;
+
+      positions.splice(idx, 1);
+
+      
+
+      const dateStr = new Date().toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' });
+
+      tradeLogs.unshift({ side: pos.side, pnl: pnl, date: dateStr });
+
+      if (tradeLogs.length > 8) tradeLogs.pop(); 
+
+      
+
+      if (pnl > 0) {
+
+        winTrades++;
+
+        unlockAchievement('first_profit');
+
+      }
+
+      
+
+      updateUI();
+
+      
+
+      const isWin = pnl >= 0;
+
+      $('closeIcon').className = `modal-icon ${isWin ? 'icon-green' : 'icon-red'}`;
+
+      $('closeIcon').textContent = isWin ? '🤍' : '💔';
+
+      $('closeTitle').textContent = isWin ? '平仓成功，漂亮！' : '已经平仓，休息一下';
+
+      $('closeDesc').textContent = `EUR/USD ${pos.side === 'long' ? '做多' : '做空'}仓位已结算。`;
+
+      const pnlStr = (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2);
+
+      $('closePnlVal').textContent = pnlStr;
+
+      $('closePnlVal').style.color = isWin ? 'var(--green)' : 'var(--red)';
+
+      
+
+      openModal('modalClose');
+
+      checkMarginCall();
+
+    }
+
+
+
+    function renderPositions() {
+
+      $('posCount').textContent = positions.length;
+
+      let totalM = 0;
+
+      positions.forEach(p => totalM += p.margin);
+
+      $('totalMargin').textContent = '$' + totalM.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      const listEl = $('positionsList');
+
+      if (positions.length === 0) {
+
+        listEl.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:0.75rem; padding:1rem 0;">暂无持仓</div>';
+
+        return;
+
+      }
+
+      listEl.innerHTML = positions.map(p => {
+
+        const pnl = calcFloatPnl(p);
+
+        const pnlClass = pnl >= 0 ? 'val-green' : 'val-red';
+
+        const pnlStr = (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2);
+
+        const lev = Math.round(p.amount / p.margin);
+
+        return `
+
+          <div class="pos-item">
+
+            <div class="pos-info">
+
+              <div class="pos-title">EUR/USD <span class="${p.side === 'long' ? 'tag-long' : 'tag-short'}">${p.side === 'long' ? '做多' : '做空'}</span></div>
+
+              <div class="pos-detail">$${p.margin.toFixed(0)} 保证 · ${lev}x</div>
+
+            </div>
+
+            <div class="pos-right">
+
+              <div class="pos-pnl ${pnlClass}">${pnlStr}<div class="pos-pnl-label">盈亏</div></div>
+
+              <button class="btn-close-pos" onclick="closePosition(${p.id})">平仓</button>
+
+            </div>
+
+          </div>
+
+        `;
+
+      }).join('');
+
+    }
+
+
+
+    function renderLogs() {
+
+      const listEl = $('logList');
+
+      if (tradeLogs.length === 0) {
+
+        listEl.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:0.75rem; padding:1rem 0;">暂无记录</div>';
+
+        return;
+
+      }
+
+      listEl.innerHTML = tradeLogs.map(log => {
+
+        const pnlClass = log.pnl >= 0 ? 'val-green' : 'val-red';
+
+        const pnlStr = (log.pnl >= 0 ? '+$' : '-$') + Math.abs(log.pnl).toFixed(2);
+
+        return `
+
+          <div class="log-item">
+
+            <span>EUR/USD · ${log.side === 'long' ? '做多' : '做空'} · 平仓 · ${log.date}</span>
+
+            <span class="${pnlClass}">${pnlStr}</span>
+
+          </div>
+
+        `;
+
+      }).join('');
+
+    }
+
+
+
+    $('logHeader').onclick = () => {
+
+      const list = $('logList');
+
+      const text = $('logToggleText');
+
+      list.classList.toggle('active');
+
+      if (list.classList.contains('active')) {
+
+        text.innerHTML = '收起记录 <span>∧</span>';
+
+      } else {
+
+        text.innerHTML = '展开记录 <span>∨</span>';
+
+      }
+
+    };
+
+
+
+    function checkMarginCall() {
+
+      if (positions.length > 0 && calcNetWorth() <= 0) {
+
+        positions = []; balance = 0;
+
+        unlockAchievement('first_liquidation'); 
+
+        setStatus('💥 爆仓了！资金归零，请重启人生。', 'error');
+
+        updateUI();
+
+      }
+
+    }
+
+
+
+    function drawChart() {
+
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+
+      if (w === 0 || h === 0) return;
+
+      ctx.clearRect(0, 0, w, h);
+
+      if (kLines.length < 2) return;
+
+
+
+      let min = Math.min(...kLines.map(k => k.low));
+
+      let max = Math.max(...kLines.map(k => k.high));
+
+      const range = max - min || 0.0005;
+
+      min -= range * 0.05; max += range * 0.05;
+
+
+
+      const padLeft = 10, padRight = 55, padTop = 10, padBottom = 10;
+
+      const chartW = w - padLeft - padRight, chartH = h - padTop - padBottom;
+
+      const stepX = chartW / MAX_POINTS;
+
+      const candleW = Math.max(2, stepX * 0.7);
+
+      const getY = val => padTop + chartH - ((val - min) / (max - min)) * chartH;
+
+
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+
+      ctx.fillStyle = '#6b7c93'; ctx.font = '10px Inter'; 
+
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+
+      
+
+      for (let i = 0; i <= 4; i++) {
+
+        const val = min + (max - min) * (i / 4), y = getY(val);
+
+        ctx.beginPath(); ctx.moveTo(padLeft, y); ctx.lineTo(w - padRight, y); ctx.stroke();
+
+        ctx.fillText(val.toFixed(4), w - padRight + 6, y);
+
+      }
+
+
+
+      kLines.forEach((k, i) => {
+
+        const x = padLeft + i * stepX + stepX / 2;
+
+        const isUp = k.close >= k.open;
+
+        ctx.fillStyle = ctx.strokeStyle = isUp ? '#00e676' : '#ff5252';
+
+        
+
+        ctx.beginPath(); ctx.moveTo(x, getY(k.high)); ctx.lineTo(x, getY(k.low)); ctx.stroke();
+
+        
+
+        const bodyY = Math.min(getY(k.open), getY(k.close));
+
+        const bodyH = Math.max(Math.abs(getY(k.open) - getY(k.close)), 1);
+
+        ctx.fillRect(x - candleW/2, bodyY, candleW, bodyH);
+
+      });
+
+
+
+      const lastY = getY(currentRate);
+
+      const isLastUp = currentRate >= prevRate;
+
+      const lineColor = isLastUp ? '#00e676' : '#ff5252';
+
+      
+
+      ctx.setLineDash([4, 4]);
+
+      ctx.strokeStyle = lineColor;
+
+      ctx.beginPath(); ctx.moveTo(padLeft, lastY); ctx.lineTo(w - padRight, lastY); ctx.stroke();
+
+      ctx.setLineDash([]);
+
+
+
+      ctx.fillStyle = lineColor;
+
+      ctx.font = 'bold 11px Inter';
+
+      ctx.textAlign = 'left';
+
+      ctx.fillText(currentRate.toFixed(5), w - padRight + 6, lastY);
+
+    }
+
+
+
+    function resizeCanvas() {
+
+      const dpr = window.devicePixelRatio || 1;
+
+      const rect = canvas.parentElement.getBoundingClientRect();
+
+      canvas.width = rect.width * dpr;
+
+      canvas.height = rect.height * dpr;
+
+      canvas.style.width = rect.width + 'px';
+
+      canvas.style.height = rect.height + 'px';
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      drawChart();
+
+    }
+
+
+
+    function tick() {
+
+      const noise = (Math.random() - 0.5) * 0.0008;
+
+      let nextRate = currentRate + noise;
+
+      
+
+      if (nextRate < 1.08) nextRate = 1.08 + Math.random() * 0.001;
+
+      if (nextRate > 1.12) nextRate = 1.12 - Math.random() * 0.001;
+
+
+
+      const open = currentRate;
+
+      const close = parseFloat(nextRate.toFixed(5));
+
+      const high = Math.max(open, close) + Math.random() * 0.0003;
+
+      const low = Math.min(open, close) - Math.random() * 0.0003;
+
+
+
+      kLines.push({ open, high, low, close });
+
+      if (kLines.length > MAX_POINTS) kLines.shift();
+
+      currentRate = close;
+
+
+
+      if (Date.now() - lastInterestTime >= 30000) {
+
+        if (debt > 0) {
+
+          let rate = 0.0001;
+
+          if (debt > 100000) rate = 0.0004;
+
+          else if (debt > 50000) rate = 0.0003;
+
+          else if (debt > 10000) rate = 0.0002;
+
+          debt += debt * rate * (30 / 86400);
+
+        }
+
+        lastInterestTime = Date.now();
+
+      }
+
+      
+
+      prevRate = currentRate;
+
+      updateUI();
+
+      drawChart();
+
+      checkMarginCall();
+
+    }
+
+
+
+    function renderAchieveUI() {
+
+      $('achieveGrid').innerHTML = achievements.map(a => `
+
+        <div class="ach-item ${a.unlocked ? 'unlocked' : ''}" style="background:var(--panel-bg); padding:0.8rem 0.5rem; text-align:center; border-radius:0.6rem; border:1px solid var(--border); opacity:${a.unlocked ? 1 : 0.4};">
+
+          <div style="font-size:1.5rem;">${a.icon}</div>
+
+          <div style="font-size:0.75rem; font-weight:700; margin:0.2rem 0;">${a.name}</div>
+
+          <div style="font-size:0.6rem; color:var(--text-sub);">${a.desc}</div>
+
+        </div>
+
+      `).join('');
+
+    }
+
+    
+
+    window.openModal = (id) => $(id).classList.add('active');
+
+    window.closeModal = (id) => $(id).classList.remove('active');
+
+
+
+    window.openRepayModal = () => {
+
+      if (debt <= 0) { alert('你现在没有欠款哦！'); return; }
+
+      $('repayAmount').textContent = '$' + debt.toFixed(2);
+
+      openModal('modalRepay');
+
+    };
+
+
+
+    $('btnConfirmRepay').onclick = () => {
+
+      if (balance < debt) { alert('可用资金不足，无法还清！'); return; }
+
+      balance -= debt;
+
+      debt = 0;
+
+      updateUI();
+
+      closeModal('modalRepay');
+
+      setStatus('✅ 债务已还清，无债一身轻！', 'success');
+
+    };
+
+
+
+    $('btnAchieve').onclick = () => { renderAchieveUI(); openModal('modalAchieve'); };
+
+    $('btnSettings').onclick = () => openModal('modalSettings');
+
+    
+
+    $('inputName').addEventListener('input', (e) => {
+
+      playerName = e.target.value.trim() || '无名氏';
+
+      localStorage.setItem('fx_player_name', playerName);
+
+      updateRankList();
+
+    });
+
+
+
+    $('btnShare').onclick = () => {
+
+      $('shareSub').textContent = '— ' + playerName + ' 的外汇交易室';
+
+      $('inputName').value = playerName;
+
+      
+
+      const net = calcNetWorth();
+
+      $('shareNet').textContent = '$' + net.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      const pnl = net - 10000;
+
+      $('sharePnl').textContent = (pnl >= 0 ? '累计收益 +$' : '累计亏损 -$') + Math.abs(pnl).toFixed(2);
+
+      $('sharePnl').style.color = pnl >= 0 ? '#66bb6a' : '#ef5350';
+
+      $('shareWinRate').textContent = (tradesCount === 0 ? 0 : Math.round((winTrades / tradesCount) * 100)) + '%';
+
+      $('shareTrades').textContent = tradesCount;
+
+      $('shareAch').textContent = achievements.filter(a => a.unlocked).length + ' / 12';
+
+      openModal('modalShare');
+
+    };
+
+
+
+    $('btnLoan').onclick = () => {
+
+      $('loanAmountInput').value = 1000;
+
+      $('loanSlider').value = 1000;
+
+      updateLoanCalc();
+
+      openModal('modalLoan');
+
+    };
+
+    
+
+    $('loanAmountInput').addEventListener('input', (e) => {
+
+      let val = parseFloat(e.target.value) || 0;
+
+      if (val > 200000) val = 200000;
+
+      $('loanSlider').value = val;
+
+      updateLoanCalc();
+
+    });
+
+    
+
+    $('loanSlider').addEventListener('input', (e) => {
+
+      $('loanAmountInput').value = e.target.value;
+
+      updateLoanCalc();
+
+    });
+
+    
+
+    function updateLoanCalc() {
+
+      const val = parseFloat($('loanAmountInput').value) || 0;
+
+      let rate = 0.0001;
+
+      if (val > 100000) rate = 0.0004;
+
+      else if (val > 50000) rate = 0.0003;
+
+      else if (val > 10000) rate = 0.0002;
+
+      
+
+      const dailyInterest = val * rate;
+
+      $('loanRate').textContent = (rate * 100).toFixed(2) + '%';
+
+      $('loanInterest').textContent = '$' + dailyInterest.toFixed(2);
+
+    }
+
+
+
+    $('btnConfirmLoan').onclick = () => {
+
+      const amt = parseFloat($('loanAmountInput').value);
+
+      if (isNaN(amt) || amt < 100) {
+
+        alert('借款金额至少 $100');
+
+        return;
+
+      }
+
+      balance += amt;
+
+      debt += amt;
+
+      
+
+      if (amt >= 10000) unlockAchievement('loan10k'); 
+
+      
+
+      updateUI();
+
+      closeModal('Loan');
+
+      setStatus('✅ 成功借入 $' + amt + ' (债务增加)', 'success');
+
+    };
+
+
+
+    $('btnLong').onclick = () => openPosition('long');
+
+    $('btnShort').onclick = () => openPosition('short');
+
+    
+
+    $('btnWork').onclick = () => { 
+
+      const today = new Date().toLocaleDateString('zh-CN');
+
+      if (lastWorkDate === today) return setStatus('❌ 今天已经打过工了，明天再来吧！', 'error');
+
+      balance += 100; workCount++; lastWorkDate = today; 
+
+      updateUI(); 
+
+      setStatus('🧱 打工完成，工资 +$100 入账', 'success'); 
+
+    };
+
+
+
+    $('btnReset').onclick = () => { 
+
+      if (calcNetWorth() > 500) return setStatus('❌ 你的资产大于 $500，无法重启！', 'error');
+
+      if (!confirm('确定要清零资产，拿 $5000 重启人生吗？(债务将全部清零)')) return;
+
+      
+
+      positions = []; 
+
+      balance = 5000; 
+
+      debt = 0; 
+
+      tradeLogs = [];
+
+      
+
+      unlockAchievement('reset'); 
+
+      
+
+      updateUI(); 
+
+      setStatus('💸 人生重来，获得 $5000 启动资金，债务已清空！', 'success'); 
+
+    };
+
+
+
+    function setStatus(msg, type = 'info') {
+
+      const el = $('statusMsg');
+
+      el.textContent = msg;
+
+      el.className = 'status-area ' + type;
+
+    }
+
+
+
+    function init() {
+
+      updateMarginCalc();
+
+      
+
+      let tempRate = INITIAL_RATE;
+
+      for (let i = 0; i < 20; i++) {
+
+        const open = tempRate;
+
+        const change = (Math.random() - 0.5) * 0.002 + (INITIAL_RATE - tempRate) * 0.1; 
+
+        const close = open + change;
+
+        const high = Math.max(open, close) + Math.random() * 0.0005;
+
+        const low = Math.min(open, close) - Math.random() * 0.0005;
+
+        kLines.push({ open, high, low, close });
+
+        tempRate = close;
+
+      }
+
+      
+
+      currentRate = kLines[kLines.length - 1].close;
+
+      prevRate = currentRate;
+
+
+
+      resizeCanvas();
+
+      updateUI();
+
+      renderAchieveUI();
+
+      window.addEventListener('resize', resizeCanvas);
+
+      setInterval(tick, TICK_MS);
+
+    }
+// 自动读取 Bot 发来的群名称参数（?name=xxx）
+// 智能识别玩家身份
+function checkBotInvite() {
+  const params = new URLSearchParams(window.location.search);
+  const groupPlayerName = params.get('player');
+  let savedName = localStorage.getItem('fx_player_name');
+  
+  // 如果链接带有名字，或者本地存过名字，就直接用
+  if (groupPlayerName) {
+    playerName = groupPlayerName;
+    localStorage.setItem('fx_player_name', playerName);
+    $('inputName').value = playerName;
+    updateRankList();
+    window.history.replaceState({}, document.title, window.location.pathname);
+  } 
+  else if (savedName && savedName !== '匿名交易员') {
+    playerName = savedName;
+    $('inputName').value = playerName;
+    updateRankList();
+    // 有名字就隐藏欢迎弹窗
+    $('modalWelcome').classList.remove('active'); 
+  } 
+  else {
+    // 裸链接点进来，且没存过名字 -> 显示自定义的漂亮弹窗
+    $('modalWelcome').classList.add('active');
+    setTimeout(() => $('welcomeNameInput').focus(), 300); // 自动聚焦输入框
+  }
+}
+
+// 点击“进入交易室”按钮
+$('btnWelcomeConfirm').onclick = () => {
+  let inputVal = $('welcomeNameInput').value.trim();
+  if (!inputVal) {
+    alert('请先输入一个昵称哦！');
+    return;
+  }
+  playerName = inputVal;
+  localStorage.setItem('fx_player_name', playerName);
+  $('inputName').value = playerName;
+  updateRankList();
+  
+  // 关闭弹窗，弹出欢迎提示
+  $('modalWelcome').classList.remove('active');
+  setStatus('👋 欢迎 ' + playerName + ' 开启交易！', 'success');
+};
+
+// 允许按回车键直接确认
+$('welcomeNameInput').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') $('btnWelcomeConfirm').click();
+});
+
+checkBotInvite(); // 启动检查
+
+
+    init();
+
+  </script>
+
+</body>
+
+</html>
+
+
+
